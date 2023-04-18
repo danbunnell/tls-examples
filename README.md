@@ -1,6 +1,6 @@
-# Test Cert Verify
+# TLS Playground
 
-Testing how TLS certificates are verified upon connection
+Testing how TLS works in different scenarios
 
 ## Setting up your Env
 

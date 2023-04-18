@@ -99,13 +99,26 @@ class TestRequests(unittest.TestCase):
         self.assertEqual(warning_ctx[0].category, InsecureRequestWarning)
         self.assertRegex(str(warning_ctx[0].message), UNVERIFIED_REQUEST_REGEX_PATTERN)
 
-    def test_verify_sni_when_hostname_mismatch(self):
+    def test_verify_pass_when_cert_match_alt_host(self):
         ip_addr = _get_ip_addr(TEST_HOST)
         ip_uri = _to_https(ip_addr)
         domain_uri = _to_https(TEST_HOST)
 
         with requests.Session() as session:
-            session.mount('https://', AlternateHostnameAdapter(TEST_HOST))
-            response = session.get(ip_uri, headers={"Host": TEST_HOST})
+            session.mount(ip_uri, AlternateHostnameAdapter(TEST_HOST))
+            response = session.get(ip_uri)
 
         self.assertTrue(200, response.status_code)
+
+    def test_verify_fail_when_cert_mismatch_alt_host(self):
+        ip_addr = _get_ip_addr(TEST_HOST)
+        ip_uri = _to_https(ip_addr)
+        domain_uri = _to_https(TEST_HOST)
+
+        with requests.Session() as session:
+            session.mount(ip_uri, AlternateHostnameAdapter("notamatch.com"))
+
+            with self.assertRaises(SSLError) as ctx:
+                response = session.get(ip_uri)
+
+            self.assertRegex(ctx.exception.__str__(), HOSTNAME_MISMATCH_REGEX_PATTERN)
