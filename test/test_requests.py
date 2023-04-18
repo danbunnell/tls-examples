@@ -11,7 +11,7 @@ from urllib3.util.ssl_match_hostname import CertificateError
 
 from src.adapters import AlternateHostnameAdapter
 
-TEST_HOST = "google.com"
+TEST_HOST = "example.org"
 HOSTNAME_MISMATCH_REGEX_PATTERN = r"hostname '[\w\.]+' doesn't match"
 UNVERIFIED_REQUEST_REGEX_PATTERN = r"Unverified HTTPS request is being made to host '[\w\.]+'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/1.26.x/advanced-usage.html#ssl-warnings"
 _RESOLVER = dns.resolver.Resolver()
