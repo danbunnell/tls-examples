@@ -13,13 +13,9 @@ class AlternateHostnameAdapter(HTTPAdapter):
     def __init__(self, hostname: str, **kwargs):
         if not hostname:
             raise ValueError("Hostname is required")
-
         self._hostname = hostname
-        super().__init__(**kwargs)
 
-    def send(self, request, **kwargs):
-        self.poolmanager.connection_pool_kw["assert_hostname"] = self._hostname
-        return super().send(request, **kwargs)
+        super().__init__(**kwargs)
 
     def init_poolmanager(self, *args, **kwargs):
         super().init_poolmanager(
