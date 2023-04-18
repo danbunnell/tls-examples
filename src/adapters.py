@@ -1,5 +1,6 @@
 from requests.adapters import HTTPAdapter
 
+
 class AlternateHostnameAdapter(HTTPAdapter):
     """An adapter that handles connecting to a server using an alternate hostname
 
@@ -15,10 +16,15 @@ class AlternateHostnameAdapter(HTTPAdapter):
 
     def send(self, request, **kwargs):
         connection_pool_kwargs = self.poolmanager.connection_pool_kw
-        if "assert_hostname" not in connection_pool_kwargs:
+        if self._hostname:
             connection_pool_kwargs["assert_hostname"] = self._hostname
+        elif "assert_hostname" in connection_pool_kwargs:
+            connection_pool_kwargs.pop("assert_hostname", None)
 
         return super().send(request, **kwargs)
 
     def init_poolmanager(self, *args, **kwargs):
-        super().init_poolmanager(server_hostname=self._hostname, *args, **kwargs)
+        super().init_poolmanager(
+            server_hostname=self._hostname,
+            *args,
+            **kwargs)

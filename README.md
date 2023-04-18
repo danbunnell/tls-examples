@@ -14,7 +14,7 @@ python -m pip install -r requirements.txt
 deactivate
 ```
 
-## Running the Tests
+## Running the Tests Locally
 
 ```
 python3 -m unittest
