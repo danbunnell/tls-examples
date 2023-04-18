@@ -11,6 +11,7 @@ from urllib3.util.ssl_match_hostname import CertificateError
 
 from src.adapters import AlternateHostnameAdapter
 
+
 TEST_HOST = "example.org"
 HOSTNAME_MISMATCH_REGEX_PATTERN = r"hostname '[\w\.]+' doesn't match"
 UNVERIFIED_REQUEST_REGEX_PATTERN = r"Unverified HTTPS request is being made to host '[\w\.]+'. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.io/en/1.26.x/advanced-usage.html#ssl-warnings"
@@ -34,7 +35,6 @@ def _get_ip_addr(domain):
 
     return addresses[0]
 
-
 def _print_response(response):
     print(f"Status Code: {response.status_code}")
     print(f"Headers Length (Count): {len(response.headers)}")
@@ -43,6 +43,7 @@ def _print_response(response):
     #print(f"Text: {response.text}")
     print(f"Text Length (Bytes): {len(response.text)}")
     #print(f"JSON: {response.json()}")
+
 
 class TestRequests(unittest.TestCase):
     """Tests the request module for behavior"""
@@ -54,8 +55,7 @@ class TestRequests(unittest.TestCase):
         self.assertTrue(200, response.status_code)
 
     def test_default_when_hostname_mismatch(self):
-        ip_addr = _get_ip_addr(TEST_HOST)
-        uri = _to_https(ip_addr)
+        uri = _to_https(_get_ip_addr(TEST_HOST))
 
         with self.assertRaises(SSLError) as ctx:
             response = requests.get(uri)
@@ -70,8 +70,7 @@ class TestRequests(unittest.TestCase):
         self.assertTrue(200, response.status_code)
 
     def test_verify_when_hostname_mismatch(self):
-        ip_addr = _get_ip_addr(TEST_HOST)
-        uri = _to_https(ip_addr)
+        uri = _to_https(_get_ip_addr(TEST_HOST))
 
         with self.assertRaises(SSLError) as ctx:
             response = requests.get(uri, verify=True)
@@ -89,8 +88,7 @@ class TestRequests(unittest.TestCase):
         self.assertRegex(str(warning_ctx[0].message), UNVERIFIED_REQUEST_REGEX_PATTERN)
 
     def test_no_verify_when_hostname_mismatch(self):
-        ip_addr = _get_ip_addr(TEST_HOST)
-        uri = _to_https(ip_addr)
+        uri = _to_https(_get_ip_addr(TEST_HOST))
 
         with warnings.catch_warnings(record=True) as warning_ctx:
             response = requests.get(uri, verify=False)
@@ -100,9 +98,7 @@ class TestRequests(unittest.TestCase):
         self.assertRegex(str(warning_ctx[0].message), UNVERIFIED_REQUEST_REGEX_PATTERN)
 
     def test_verify_pass_when_cert_match_alt_host(self):
-        ip_addr = _get_ip_addr(TEST_HOST)
-        ip_uri = _to_https(ip_addr)
-        domain_uri = _to_https(TEST_HOST)
+        ip_uri = _to_https(_get_ip_addr(TEST_HOST))
 
         with requests.Session() as session:
             session.mount(ip_uri, AlternateHostnameAdapter(TEST_HOST))
@@ -111,9 +107,7 @@ class TestRequests(unittest.TestCase):
         self.assertTrue(200, response.status_code)
 
     def test_verify_fail_when_cert_mismatch_alt_host(self):
-        ip_addr = _get_ip_addr(TEST_HOST)
-        ip_uri = _to_https(ip_addr)
-        domain_uri = _to_https(TEST_HOST)
+        ip_uri = _to_https(_get_ip_addr(TEST_HOST))
 
         with requests.Session() as session:
             session.mount(ip_uri, AlternateHostnameAdapter("notamatch.com"))

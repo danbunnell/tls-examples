@@ -1,6 +1,6 @@
 # TLS Examples
 
-Testing how TLS works in different scenarios
+Testing how TLS works in different Python scenarios
 
 ## Setting up your Env
 
